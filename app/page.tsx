@@ -5,16 +5,17 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { VerseCallout } from "@/components/share/verse-callout";
+import { HomeMoments } from "@/components/share/home-moments";
 
 export default function Home() {
   return (
     <main className="min-h-screen bg-background">
-   
       {/* HERO */}
       <section className="relative overflow-hidden">
-        {/* Fondo suave */}
-        <div className="absolute inset-0 -z-10 bg-gradient-to-b from-muted/70 to-background" />
-        <div className="absolute left-1/2 top-[-120px] -z-10 h-[360px] w-[360px] -translate-x-1/2 rounded-full bg-muted blur-3xl opacity-60" />
+        {/* Fondo más trabajado */}
+        <div className="absolute inset-0 -z-10 bg-gradient-to-b from-muted/70 via-background to-background" />
+        <div className="absolute -top-24 left-1/2 -z-10 h-[420px] w-[420px] -translate-x-1/2 rounded-full bg-muted blur-3xl opacity-60" />
+        <div className="absolute -bottom-40 left-1/4 -z-10 h-[420px] w-[420px] rounded-full bg-muted blur-3xl opacity-40" />
 
         <div className="container mx-auto px-6 py-16 md:py-24">
           <div className="mx-auto max-w-3xl text-center">
@@ -48,19 +49,19 @@ export default function Home() {
             <div className="mt-10">
               <Separator className="my-6" />
               <div className="grid gap-4 sm:grid-cols-3 text-sm text-left sm:text-center">
-                <div className="rounded-lg border bg-card p-4">
+                <div className="rounded-xl border bg-card/70 p-4 shadow-sm">
                   <p className="font-medium">Reuniones</p>
                   <p className="mt-1 text-muted-foreground">
                     Domingos y entre semana
                   </p>
                 </div>
-                <div className="rounded-lg border bg-card p-4">
+                <div className="rounded-xl border bg-card/70 p-4 shadow-sm">
                   <p className="font-medium">Transmisión</p>
                   <p className="mt-1 text-muted-foreground">
                     En vivo y grabaciones
                   </p>
                 </div>
-                <div className="rounded-lg border bg-card p-4">
+                <div className="rounded-xl border bg-card/70 p-4 shadow-sm">
                   <p className="font-medium">Apoyo</p>
                   <p className="mt-1 text-muted-foreground">
                     Oración y consejería
@@ -68,12 +69,13 @@ export default function Home() {
                 </div>
               </div>
             </div>
+
           </div>
         </div>
       </section>
 
-      {/* TARJETAS (mapeo desde model) */}
-      <section className="container mx-auto px-6 pb-14 md:pb-20">
+      {/* TARJETAS */}
+      <section className="container mx-auto px-6 pb-12 md:pb-16">
         <div className="mb-8 flex items-end justify-between gap-4">
           <div>
             <h2 className="text-2xl font-semibold tracking-tight">
@@ -93,8 +95,11 @@ export default function Home() {
           {HOME_CARDS.map((item) => (
             <Card
               key={item.title}
-              className="group hover:shadow-lg transition-all hover:-translate-y-0.5"
+              className="group relative overflow-hidden hover:shadow-lg transition-all hover:-translate-y-0.5"
             >
+              {/* sutil overlay para profundidad */}
+              <div className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity bg-gradient-to-b from-transparent via-transparent to-muted/40" />
+
               <CardHeader className="space-y-2">
                 {item.tag ? (
                   <Badge variant="secondary" className="w-fit">
@@ -121,9 +126,11 @@ export default function Home() {
         </div>
       </section>
 
+      {/* MOMENTOS (carousel) */}
+      <HomeMoments />
+
       {/* VERSÍCULO */}
       <VerseCallout />
-
     </main>
   );
 }
