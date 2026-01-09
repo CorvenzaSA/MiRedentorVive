@@ -1,0 +1,11 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "obs-stream-web",
+  "main": ".open-next/worker.js",
+  "compatibility_date": "2026-01-09",
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS"
+  },
+  "compatibility_flags": ["nodejs_compat"]
+}
