@@ -125,6 +125,7 @@ export function HomeMoments() {
         </Button>
       </div>
 
+
       <Carousel className="w-full">
         <CarouselContent>
           {HOME_MOMENTS.map((item) => (
