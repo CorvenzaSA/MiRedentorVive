@@ -2,16 +2,14 @@
   "name": "obs-stream-web",
   "version": "0.1.0",
   "private": true,
-  "scripts": {
-    "dev": "next dev",
-    "build:next": "next build",
-    "build": "pnpm run build:next && opennextjs-cloudflare build --skipNextBuild",
-    "build:cf": "opennextjs-cloudflare build",
-    "deploy:cf": "wrangler deploy",
-    "dev:cf": "opennextjs-cloudflare build && wrangler dev",
-    "start": "next start",
-    "lint": "eslint"
-  },
+"scripts": {
+  "dev": "next dev",
+  "build": "opennextjs-cloudflare build",
+  "deploy:cf": "wrangler deploy",
+  "dev:cf": "opennextjs-cloudflare build && wrangler dev",
+  "start": "next start",
+  "lint": "eslint"
+},
   "dependencies": {
     "@opennextjs/cloudflare": "^1.14.8",
     "@radix-ui/react-dialog": "^1.1.15",
