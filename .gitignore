@@ -20,6 +20,11 @@
 # production
 /build
 
+# Build outputs
+.open-next/
+.next/
+node_modules/
+
 # misc
 .DS_Store
 *.pem
