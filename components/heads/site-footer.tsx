@@ -49,7 +49,7 @@ export function SiteFooter() {
             <h4 className="text-sm font-medium">Reuniones</h4>
 
             <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
-              <li>Domingos – Servicio general</li>
+              <li>Servicio general</li>
               <li>Entre semana – Reuniones y discipulados</li>
               <li>Transmisiones en vivo y grabaciones</li>
             </ul>
