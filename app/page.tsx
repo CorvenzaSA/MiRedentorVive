@@ -34,7 +34,7 @@ export default function Home() {
 
             <div className="mt-10 flex flex-col sm:flex-row justify-center gap-3">
               <Button asChild size="lg">
-                <Link href="/lives">Ver transmisiones</Link>
+                <Link href="/videos/lives">Ver transmisiones</Link>
               </Button>
 
               <Button asChild size="lg" variant="outline">

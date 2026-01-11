@@ -41,14 +41,14 @@ export function SiteHeader() {
             <Link href="/Contact">Pedir oración</Link>
           </Button>
           <Button asChild size="sm">
-            <Link href="/lives">Ver en vivo</Link>
+            <Link href="/videos/lives">Ver en vivo</Link>
           </Button>
         </div>
 
         {/* Mobile menu */}
         <div className="md:hidden flex items-center gap-2">
           <Button asChild size="sm" variant="outline">
-            <Link href="/lives">En vivo</Link>
+            <Link href="/videos/lives">En vivo</Link>
           </Button>
 
           <Sheet>
@@ -81,7 +81,7 @@ export function SiteHeader() {
                   <Link href="/Contact">Pedir oración</Link>
                 </Button>
                 <Button asChild>
-                  <Link href="/lives">Ver en vivo</Link>
+                  <Link href="/videos/lives">Ver en vivo</Link>
                 </Button>
               </div>
             </SheetContent>
