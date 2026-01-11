@@ -36,6 +36,7 @@ export default function Home() {
               <Button asChild size="lg">
                 <Link href="/videos/panel">Ver transmisiones</Link>
               </Button>
+              
 
               <Button asChild size="lg" variant="outline">
                 <Link href="/Information">Conócenos</Link>
