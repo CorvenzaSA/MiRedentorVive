@@ -48,14 +48,19 @@ export default function YoutubePage() {
 
   const [data, setData] = useState<VideosApiResponse | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   // Player
   const [selectedVideoId, setSelectedVideoId] = useState<string | null>(null);
 
-  // Paginación real (YouTube pageToken)
+  // Paginación REAL
+  // currentToken = token usado para cargar la página actual ("" para página 1)
+  const [currentToken, setCurrentToken] = useState<string>("");
   const [nextToken, setNextToken] = useState<string | null>(null);
-  const [prevTokens, setPrevTokens] = useState<string[]>([]); // stack para "Anterior"
+  const [history, setHistory] = useState<string[]>([]); // tokens de páginas anteriores
   const [page, setPage] = useState(1);
+
+  const abortRef = useRef<AbortController | null>(null);
 
   const playerVideoId = selectedVideoId ?? data?.featured?.videoId ?? null;
 
@@ -69,97 +74,95 @@ export default function YoutubePage() {
     else window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
-  async function fetchPage(token?: string) {
+  async function fetchPage(token: string, signal?: AbortSignal) {
     const qs = new URLSearchParams();
     qs.set("maxResults", String(PAGE_SIZE));
     if (token) qs.set("pageToken", token);
 
-    const r = await fetch(`/api/youtube/videos?${qs.toString()}`);
+    const r = await fetch(`/api/youtube/videos?${qs.toString()}`, { signal });
     const j = (await r.json()) as VideosApiResponse;
 
     if (!j?.ok) throw new Error(j?.error ?? "No se pudieron cargar los videos.");
     return j;
   }
 
-  async function loadFirstPage() {
-    setLoading(true);
-    try {
-      const j = await fetchPage();
-      setData(j);
-      setNextToken(j.nextPageToken ?? null);
-      setPrevTokens([]);
-      setPage(1);
+  async function load(token: string, nextPageNumber: number, opts?: { resetSelection?: boolean }) {
+    // Cancelar requests anteriores si el usuario navega rápido
+    abortRef.current?.abort();
+    const controller = new AbortController();
+    abortRef.current = controller;
 
-      // si no hay selección manual, dejar el featured
-      setSelectedVideoId(null);
+    setLoading(true);
+    setError(null);
+
+    try {
+      const j = await fetchPage(token, controller.signal);
+
+      setData((prev) => {
+        // Mantener featured de la primera página aunque páginas siguientes vengan con featured:null
+        const keepFeatured =
+          token === "" ? (j.featured ?? null) : (prev?.featured ?? j.featured ?? null);
+
+        return { ...j, featured: keepFeatured };
+      });
+
+      setCurrentToken(token);
+      setNextToken(j.nextPageToken ?? null);
+      setPage(nextPageNumber);
+
+      if (opts?.resetSelection) setSelectedVideoId(null);
+    } catch (e: any) {
+      if (e?.name === "AbortError") return;
+      setError(e?.message ?? "Error inesperado.");
     } finally {
       setLoading(false);
     }
+  }
+
+  async function loadFirstPage() {
+    setHistory([]);
+    await load("", 1, { resetSelection: true });
   }
 
   async function goNext() {
-    if (!nextToken) return;
-    setLoading(true);
-    try {
-      // Guardamos el token actual para poder volver
-      setPrevTokens((s) => [...s, nextToken]);
+    if (!nextToken || loading) return;
 
-      const j = await fetchPage(nextToken);
-      setData((prev) => {
-        // En páginas siguientes, featured suele venir null; mantenemos el featured original si existe.
-        const keepFeatured = prev?.featured ?? j.featured ?? null;
-        return { ...j, featured: keepFeatured };
-      });
-      setNextToken(j.nextPageToken ?? null);
-      setPage((p) => p + 1);
-      scrollToTop();
-    } finally {
-      setLoading(false);
-    }
+    // Guardar el token actual para poder volver
+    setHistory((h) => [...h, currentToken]);
+
+    // Cargar siguiente usando nextToken como currentToken
+    await load(nextToken, page + 1);
+    scrollToTop();
   }
 
   async function goPrev() {
-    // Para regresar, usamos el stack de tokens: el anterior es el penúltimo token
-    // Si estamos en página 2, volver a página 1 es simplemente loadFirstPage.
-    if (page <= 1) return;
+    if (page <= 1 || loading) return;
 
-    setLoading(true);
-    try {
-      if (page === 2) {
-        await loadFirstPage();
-        scrollToTop();
-        return;
-      }
+    setHistory((h) => {
+      const copy = [...h];
+      const prevToken = copy.pop() ?? "";
+      // OJO: actualizamos history, pero load necesita el token ya
+      // Para eso, llamamos load fuera con el token calculado:
+      void load(prevToken, page - 1);
+      return copy;
+    });
 
-      // Para página >= 3: el token para ir atrás es el de dos posiciones atrás
-      // porque el último token del stack es el token que usamos para ir a la página actual.
-      const stack = [...prevTokens];
-      stack.pop(); // quitamos el token de la página actual
-      const tokenToGo = stack[stack.length - 1]; // token de la página anterior
-
-      // Actualizamos el stack
-      setPrevTokens(stack);
-
-      const j = tokenToGo ? await fetchPage(tokenToGo) : await fetchPage();
-      setData((prev) => {
-        const keepFeatured = prev?.featured ?? j.featured ?? null;
-        return { ...j, featured: keepFeatured };
-      });
-      setNextToken(j.nextPageToken ?? null);
-      setPage((p) => Math.max(1, p - 1));
-      scrollToTop();
-    } finally {
-      setLoading(false);
-    }
+    scrollToTop();
   }
 
   useEffect(() => {
-    loadFirstPage();
+    void loadFirstPage();
+    return () => abortRef.current?.abort();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const items = data?.ok ? data.items : [];
   const featured = data?.ok ? data.featured : null;
+
+  const selectedPublishedAt = useMemo(() => {
+    if (!selectedVideoId) return null;
+    return items.find((x) => x.videoId === selectedVideoId)?.publishedAt ?? null;
+  }, [items, selectedVideoId]);
 
   return (
     <main className="mx-auto max-w-6xl px-6 py-10">
@@ -231,11 +234,7 @@ export default function YoutubePage() {
 
             {(selectedVideoId || featured?.publishedAt) && (
               <Badge variant="outline" className="w-fit">
-                {formatDate(
-                  selectedVideoId
-                    ? items.find((x) => x.videoId === selectedVideoId)?.publishedAt
-                    : featured?.publishedAt
-                )}
+                {formatDate(selectedVideoId ? selectedPublishedAt : featured?.publishedAt)}
               </Badge>
             )}
           </div>
@@ -249,19 +248,17 @@ export default function YoutubePage() {
             </div>
           )}
 
-          {!loading && data && !data.ok && (
-            <div className="rounded-lg border bg-muted/30 p-4 text-sm">
-              Error: {data.error ?? "No se pudo cargar el contenido."}
-            </div>
+          {!loading && error && (
+            <div className="rounded-lg border bg-muted/30 p-4 text-sm">Error: {error}</div>
           )}
 
-          {!loading && !embedUrl && (
+          {!loading && !error && !embedUrl && (
             <div className="rounded-lg border bg-muted/30 p-4 text-sm">
               No hay videos disponibles para reproducir.
             </div>
           )}
 
-          {!loading && embedUrl && (
+          {!loading && !error && embedUrl && (
             <div className="w-full overflow-hidden rounded-xl border bg-black">
               <div className="aspect-video w-full">
                 <iframe
@@ -298,12 +295,6 @@ export default function YoutubePage() {
         </div>
       </div>
 
-      {!loading && data && !data.ok && (
-        <div className="rounded-lg border bg-muted/30 p-4 text-sm">
-          Error: {data.error ?? "No se pudieron cargar los videos."}
-        </div>
-      )}
-
       {loading && (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {Array.from({ length: 6 }).map((_, i) => (
@@ -324,81 +315,81 @@ export default function YoutubePage() {
         </div>
       )}
 
-      {!loading && data?.ok && (
+      {!loading && !error && data?.ok && (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {items.map((v, idx) => {
             const vid = v.videoId ?? "";
             const isSelected = !!vid && selectedVideoId === vid;
 
-            return (
-              <Card
-                key={safeKey(v, idx)}
-                className={[
-                  "group overflow-hidden transition",
-                  vid ? "hover:-translate-y-0.5 hover:shadow-md" : "",
-                  isSelected ? "ring-2 ring-ring ring-offset-2" : "",
-                ].join(" ")}
-              >
-                <CardHeader className="space-y-2">
-                  <div className="flex items-start justify-between gap-2">
-                    <CardTitle className="line-clamp-2 text-sm">
-                      {v.title ?? "Sin título"}
-                    </CardTitle>
-                    <Badge variant="outline" className="text-xs">
-                      Video
-                    </Badge>
-                  </div>
-                  <CardDescription className="text-xs">{formatDate(v.publishedAt)}</CardDescription>
-                </CardHeader>
+        return (
+  <Card
+    key={safeKey(v, idx)}
+    className={[
+      "group overflow-hidden transition",
+      vid ? "hover:-translate-y-0.5 hover:shadow-md" : "",
+      isSelected ? "ring-2 ring-ring ring-offset-2" : "",
+    ].join(" ")}
+  >
+    <CardHeader className="space-y-2">
+      <div className="flex items-start justify-between gap-2">
+        <CardTitle className="line-clamp-2 text-sm">{v.title ?? "Sin título"}</CardTitle>
+        <Badge variant="outline" className="text-xs">
+          Video
+        </Badge>
+      </div>
+      <CardDescription className="text-xs">{formatDate(v.publishedAt)}</CardDescription>
+    </CardHeader>
 
-                <CardContent className="space-y-3">
-                  <div className="overflow-hidden rounded-lg border bg-muted">
-                    <div className="aspect-video w-full">
-                      {v.thumbnail ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
-                          src={v.thumbnail}
-                          alt={v.title ?? "Video"}
-                          className="h-full w-full object-cover"
-                          loading="lazy"
-                        />
-                      ) : (
-                        <div className="h-full w-full" />
-                      )}
-                    </div>
-                  </div>
+    <CardContent className="space-y-3">
+      <div className="overflow-hidden rounded-lg border bg-muted">
+        <div className="aspect-video w-full">
+          {v.thumbnail ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={v.thumbnail}
+              alt={v.title ?? "Video"}
+              className="h-full w-full object-cover"
+              loading="lazy"
+            />
+          ) : (
+            <div className="h-full w-full" />
+          )}
+        </div>
+      </div>
 
-                  <div className="flex items-center justify-between gap-2">
-                    <Button
-                      size="sm"
-                      className="w-full gap-2"
-                      disabled={!vid}
-                      onClick={() => {
-                        if (!vid) return;
-                        setSelectedVideoId(vid);
-                        scrollToTop();
-                      }}
-                    >
-                      <HiOutlinePlay className="h-4 w-4" />
-                      {isSelected ? "Reproduciendo" : "Reproducir aquí"}
-                    </Button>
+      {/* BOTONES: grid 1fr auto para que SIEMPRE se vean los 2 */}
+      <div className="grid grid-cols-[1fr_auto] items-center gap-2">
+        <Button
+          size="sm"
+          className="w-full gap-2"
+          disabled={!vid}
+          onClick={() => {
+            if (!vid) return;
+            setSelectedVideoId(vid);
+            scrollToTop();
+          }}
+        >
+          <HiOutlinePlay className="h-4 w-4" />
+          {isSelected ? "Reproduciendo" : "Reproducir aquí"}
+        </Button>
 
-                    {vid && (
-                      <Button asChild size="sm" variant="outline" className="gap-2">
-                        <a
-                          href={`https://www.youtube.com/watch?v=${vid}`}
-                          target="_blank"
-                          rel="noreferrer"
-                          aria-label="Ver en YouTube"
-                        >
-                          <HiOutlineExternalLink className="h-4 w-4" />
-                        </a>
-                      </Button>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            );
+        {vid && (
+          <Button asChild size="sm" variant="outline" className="px-3">
+            <a
+              href={`https://www.youtube.com/watch?v=${vid}`}
+              target="_blank"
+              rel="noreferrer"
+              aria-label="Ver en YouTube"
+            >
+              YouTube
+            </a>
+          </Button>
+        )}
+      </div>
+    </CardContent>
+  </Card>
+);
+
           })}
         </div>
       )}

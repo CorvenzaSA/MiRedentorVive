@@ -50,7 +50,7 @@ export function SiteFooter() {
 
             <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
               <li>Servicio general</li>
-              <li>Entre semana – Reuniones y discipulados</li>
+              <li>Entre semana – Reuniones </li>
               <li>Transmisiones en vivo y grabaciones</li>
             </ul>
           </div>

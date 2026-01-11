@@ -6,7 +6,7 @@ export type FooterLink = {
 export const FOOTER_LINKS: FooterLink[] = [
   { label: "Información", href: "/Information" },
   { label: "Ministerios", href: "/Ministries" },
-  { label: "Transmisiones en vivo", href: "/lives" },
+  { label: "Transmisiones en vivo", href: "/videos/panel" },
   { label: "Videos", href: "/videos" },
   { label: "Avisos", href: "/Advertisements" },
   { label: "Contacto", href: "/Contact" },
