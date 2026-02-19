@@ -17,6 +17,7 @@ export default function HomePage() {
             </span>
           </div>
 
+
           <div className="px-6 md:px-10 py-10">
             {/* Header */}
             <header className="text-center">
