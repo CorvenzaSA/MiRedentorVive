@@ -1,248 +1,133 @@
-"use client";
-
-import Link from "next/link";
-import { PLATFORMS } from "@/models/plataforms/platforms";
-
-// shadcn
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
-
-// react-icons
-import {
-  FaYoutube,
-  FaFacebook,
-  FaTwitch,
-  FaTiktok,
-  FaInstagram,
-  FaLink,
-} from "react-icons/fa";
-import { RiLiveFill } from "react-icons/ri";
-import { HiOutlineArrowRight } from "react-icons/hi";
-
-type PlatformKey = (typeof PLATFORMS)[number]["key"];
-
-function PlatformIcon({ keyName }: { keyName: PlatformKey }) {
-  const cls = "h-6 w-6";
-  switch (keyName) {
-    case "youtube":
-      return <FaYoutube className={cls} />;
-    case "facebook":
-      return <FaFacebook className={cls} />;
-    case "twitch":
-      return <FaTwitch className={cls} />;
-    case "tiktok":
-      return <FaTiktok className={cls} />;
-    case "instagram":
-      return <FaInstagram className={cls} />;
-    default:
-      return <FaLink className={cls} />;
-  }
-}
-
-function StatusBadge({ enabled }: { enabled: boolean }) {
-  if (!enabled) {
-    return (
-      <Badge variant="secondary" className="gap-2">
-        <span className="h-2 w-2 rounded-full bg-muted-foreground/60" />
-        Próximamente
-      </Badge>
-    );
-  }
-
+export default function HomePage() {
   return (
-    <Badge className="gap-2 bg-emerald-500 text-white hover:bg-emerald-500">
-      <span className="h-2 w-2 rounded-full bg-white/90" />
-      Activo
-    </Badge>
-  );
-}
-
-function PlatformCard({
-  name,
-  description,
-  href,
-  enabled,
-  keyName,
-}: {
-  name: string;
-  description: string;
-  href: string;
-  enabled: boolean;
-  keyName: PlatformKey;
-}) {
-  const inner = (
-    <Card
-      className={[
-        "group h-full overflow-hidden transition",
-        enabled
-          ? "hover:-translate-y-0.5 hover:shadow-lg"
-          : "opacity-70",
-      ].join(" ")}
-    >
-      {/* Top accent */}
-      <div className="h-1 w-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 opacity-70" />
-
-      <CardHeader className="space-y-3">
-        <div className="flex items-start justify-between gap-3">
-          <div className="flex items-center gap-3">
-            <div
-              className={[
-                "flex h-11 w-11 items-center justify-center rounded-xl border",
-                enabled
-                  ? "bg-muted text-foreground"
-                  : "bg-muted text-muted-foreground",
-              ].join(" ")}
-            >
-              <PlatformIcon keyName={keyName} />
+    <main className="min-h-screen text-white px-6 py-12 flex items-center justify-center
+      bg-[radial-gradient(1200px_600px_at_50%_-10%,rgba(79,70,229,0.35),transparent_60%),radial-gradient(900px_500px_at_90%_20%,rgba(14,165,233,0.25),transparent_55%),radial-gradient(800px_500px_at_10%_30%,rgba(239,68,68,0.18),transparent_55%),linear-gradient(180deg,#0B1220,#070A12)]">
+      <section className="w-full max-w-5xl">
+        {/* Shell / Card principal */}
+        <div className="rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-[0_30px_120px_rgba(0,0,0,0.60)] overflow-hidden">
+          {/* Top bar sutil */}
+          <div className="px-6 py-4 border-b border-white/10 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="h-2.5 w-2.5 rounded-full bg-emerald-400 animate-pulse" />
+              <span className="text-sm text-white/80">En vivo 24/7</span>
             </div>
 
-            <div className="space-y-1">
-              <CardTitle className="text-base">{name}</CardTitle>
-              <CardDescription className="text-xs">{description}</CardDescription>
-            </div>
+            <span className="text-xs text-white/50">
+              Radio • Guatemala
+            </span>
           </div>
 
-          <StatusBadge enabled={enabled} />
-        </div>
-      </CardHeader>
+          <div className="px-6 md:px-10 py-10">
+            {/* Header */}
+            <header className="text-center">
+              <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight">
+                Radio Redentor Vive
+              </h1>
 
-      <CardContent className="flex items-center justify-between">
-        <span className="text-xs text-muted-foreground">
-          {enabled ? "Acceder al panel" : "No disponible aún"}
-        </span>
+              <p className="mt-3 text-base md:text-lg text-white/75">
+                Transmitiendo esperanza <span className="text-white/90 font-medium">24/7</span> desde Guatemala
+              </p>
+            </header>
 
-        {enabled ? (
-          <Button size="sm" className="gap-2">
-            Abrir <HiOutlineArrowRight className="h-4 w-4" />
-          </Button>
-        ) : (
-          <Button size="sm" variant="secondary" disabled>
-            Próximamente
-          </Button>
-        )}
-      </CardContent>
-    </Card>
-  );
+            {/* Player Card con borde degradado */}
+            <div className="mt-10 relative">
+              <div className="absolute -inset-[1px] rounded-2xl bg-gradient-to-r from-blue-500/35 via-white/10 to-red-500/30 blur-[2px]" />
+              <div className="relative rounded-2xl border border-white/10 bg-[#0B1220]/70 backdrop-blur shadow-[0_20px_80px_rgba(0,0,0,0.55)] overflow-hidden">
+                <div className="px-5 py-4 border-b border-white/10 flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-white/60">Reproduciendo ahora</p>
+                    <p className="font-semibold text-white">Radio Redentor Vive</p>
+                  </div>
+                  <span className="text-xs text-white/60">ZenoFM Player</span>
+                </div>
 
-  if (!enabled) return <div>{inner}</div>;
-
-  // Card completa clickeable + focus accesible
-  return (
-    <Link
-      href={href}
-      className="block rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-    >
-      {inner}
-    </Link>
-  );
-}
-
-export default function PanelPage() {
-  const active = PLATFORMS.filter((p) => p.enabled !== false);
-  const coming = PLATFORMS.filter((p) => p.enabled === false);
-
-  return (
-    <main className="mx-auto max-w-6xl px-6 py-10">
-      {/* Hero */}
-      <div className="relative overflow-hidden rounded-2xl border bg-background">
-        <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/10 via-purple-500/10 to-pink-500/10" />
-        <div className="relative p-6 sm:p-8">
-          <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
-            <div className="space-y-2">
-              <div className="inline-flex items-center gap-2 rounded-full border bg-background/60 px-3 py-1 text-xs text-muted-foreground backdrop-blur">
-                <RiLiveFill className="h-4 w-4 text-emerald-500" />
-                Panel de transmisiones
+                <div className="w-full h-[200px]">
+                  <iframe
+                    src="https://listen.zeno.fm/player/radio-redentor-vive"
+                    allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                    frameBorder="0"
+                    scrolling="no"
+                    height="100%"
+                    width="100%"
+                    loading="lazy"
+                    title="ZenoFM Player - Radio Redentor Vive"
+                  />
+                </div>
               </div>
+            </div>
 
-              <h1 className="text-3xl font-semibold tracking-tight">Panel</h1>
-              <p className="max-w-2xl text-sm text-muted-foreground">
-                Selecciona la plataforma para administrar o visualizar transmisiones. Las opciones “Próximamente”
-                se activarán conforme avances con las integraciones.
+            {/* CTAs más “premium” */}
+            <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-4">
+              <a
+                href="https://www.facebook.com/profile.php?id=61586628570614"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group rounded-2xl px-6 py-5 text-center font-semibold
+                  bg-[#1877F2] shadow-lg shadow-blue-500/20
+                  hover:brightness-110 hover:-translate-y-0.5 active:translate-y-0 transition"
+              >
+                <span className="inline-flex items-center justify-center gap-2">
+                  👍 <span>Síguenos en Facebook</span>
+                </span>
+                <span className="block text-sm font-normal text-white/90 mt-1">
+                  Noticias, cultos y contenido diario
+                </span>
+              </a>
+
+              <a
+                href="https://zeno.fm"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group rounded-2xl px-6 py-5 text-center font-semibold
+                  bg-[#E10600] shadow-lg shadow-red-500/20
+                  hover:brightness-110 hover:-translate-y-0.5 active:translate-y-0 transition"
+              >
+                <span className="inline-flex items-center justify-center gap-2">
+                  📻 <span>Descargar ZenoFM</span>
+                </span>
+                <span className="block text-sm font-normal text-white/90 mt-1">
+                  Busca “Radio Redentor Vive”
+                </span>
+              </a>
+            </div>
+
+            {/* Beneficios (simple pero sube percepción) */}
+            <div className="mt-10 grid grid-cols-1 md:grid-cols-3 gap-4">
+              {[
+                { title: "Música Cristiana", desc: "Alabanza, adoración y mensajes de fe." },
+                { title: "Disponible 24/7", desc: "Siempre al aire para acompañarte." },
+                { title: "Desde Guatemala", desc: "Una voz de esperanza para las naciones." },
+              ].map((item) => (
+                <div
+                  key={item.title}
+                  className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur p-5"
+                >
+                  <p className="font-semibold text-white">{item.title}</p>
+                  <p className="mt-1 text-sm text-white/70">{item.desc}</p>
+                </div>
+              ))}
+            </div>
+
+            {/* App instructions */}
+            <div className="mt-10 rounded-2xl border border-white/10 bg-white/5 backdrop-blur p-6 text-center">
+              <h2 className="text-xl md:text-2xl font-semibold">
+                📱 Escúchanos desde la App
+              </h2>
+              <p className="mt-2 text-white/80">
+                Descarga la aplicación de ZenoFM y busca:
+              </p>
+              <p className="mt-3 text-2xl md:text-3xl font-bold text-amber-300">
+                Radio Redentor Vive
               </p>
             </div>
 
-            <div className="flex gap-2">
-              <Button asChild variant="outline">
-                <Link href="/">Ir al inicio</Link>
-              </Button>
-              <Button asChild className="gap-2">
-                <Link href="/panel/youtube">
-                  Ver YouTube <HiOutlineArrowRight className="h-4 w-4" />
-                </Link>
-              </Button>
-            </div>
-          </div>
-
-          <div className="mt-6 grid gap-3 sm:grid-cols-3">
-            <div className="rounded-xl border bg-background/70 p-4 backdrop-blur">
-              <div className="text-xs text-muted-foreground">Plataformas activas</div>
-              <div className="mt-1 text-2xl font-semibold">{active.length}</div>
-            </div>
-            <div className="rounded-xl border bg-background/70 p-4 backdrop-blur">
-              <div className="text-xs text-muted-foreground">Próximamente</div>
-              <div className="mt-1 text-2xl font-semibold">{coming.length}</div>
-            </div>
-            <div className="rounded-xl border bg-background/70 p-4 backdrop-blur">
-              <div className="text-xs text-muted-foreground">Modo</div>
-              <div className="mt-1 text-2xl font-semibold">Panel</div>
-            </div>
+            {/* Footer */}
+            <footer className="mt-10 text-center text-sm text-white/45">
+              © {new Date().getFullYear()} Radio Redentor Vive. Todos los derechos reservados.
+            </footer>
           </div>
         </div>
-      </div>
-
-      {/* Activas */}
-      <div className="mt-10">
-        <div className="flex items-end justify-between gap-3">
-          <div>
-            <h2 className="text-lg font-semibold">Plataformas activas</h2>
-            <p className="text-sm text-muted-foreground">
-              Acceso rápido a los paneles habilitados.
-            </p>
-          </div>
-        </div>
-
-        <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {active.map((p) => (
-            <PlatformCard
-              key={p.key}
-              name={p.name}
-              description={p.description}
-              href={p.href}
-              enabled={p.enabled !== false}
-              keyName={p.key as PlatformKey}
-            />
-          ))}
-        </div>
-      </div>
-
-      <Separator className="my-10" />
-
-      {/* Próximamente */}
-      <div>
-        <div className="flex items-end justify-between gap-3">
-          <div>
-            <h2 className="text-lg font-semibold">Próximamente</h2>
-            <p className="text-sm text-muted-foreground">
-              Estas integraciones se habilitarán más adelante.
-            </p>
-          </div>
-        </div>
-
-        <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {coming.map((p) => (
-            <PlatformCard
-              key={p.key}
-              name={p.name}
-              description={p.description}
-              href={p.href}
-              enabled={false}
-              keyName={p.key as PlatformKey}
-            />
-          ))}
-        </div>
-      </div>
+      </section>
     </main>
   );
 }
