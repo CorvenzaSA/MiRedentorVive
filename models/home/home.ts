@@ -19,7 +19,7 @@ export const HOME_CARDS: HomeCardItem[] = [
     title: "Transmisiones en vivo",
     description:
       "Acompáñanos en vivo y revive los mensajes cuando lo necesites.",
-    href: "/lives",
+    href: "/videos/lives",
     cta: "Ir a transmisiones",
     tag: "En vivo",
   },
